@@ -162,3 +162,24 @@ func (db *AtomfsDB) GetMolecule(name string) (types.Molecule, error) {
 
 	return mol, nil
 }
+
+func (db *AtomfsDB) GetUnusedAtoms() ([]types.Atom, error) {
+	rows, err := db.DB.Query(`
+		SELECT atoms.id, atoms.name, atoms.hash, atoms.type
+		FROM atoms
+		WHERE atoms.id not in (
+			SELECT atoms.id
+			FROM atoms JOIN molecule_atoms ON atoms.id = molecule_atoms.atom_id
+		)`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return db.getAtoms(rows)
+}
+
+func (db *AtomfsDB) DeleteThing(id int64, table string) error {
+	_, err := db.DB.Exec(fmt.Sprintf("DELETE FROM %ss WHERE id = ?", table), id)
+	return err
+}

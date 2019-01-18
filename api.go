@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/anuvu/atomfs/db"
@@ -70,4 +71,50 @@ func (atomfs *Instance) FSCK() ([]string, error) {
 	}
 
 	return errs, nil
+}
+
+// GC does a garbage collection of atomfs, deleting any unused atoms, and any
+// files in the atom directory that aren't in the database.
+func (atomfs *Instance) GC() error {
+	// First, let's prune unused atoms from the DB.
+	unusedAtoms, err := atomfs.db.GetUnusedAtoms()
+	if err != nil {
+		return err
+	}
+
+	for _, atom := range unusedAtoms {
+		if err := atomfs.db.DeleteThing(atom.ID, "atom"); err != nil {
+			return err
+		}
+	}
+
+	// Now, delete everything that's on disk that isn't in our DB.
+	onDiskAtoms, err := ioutil.ReadDir(atomfs.config.AtomsPath())
+	if err != nil {
+		return err
+	}
+
+	inDBAtoms, err := atomfs.db.GetAtoms()
+	if err != nil {
+		return err
+	}
+
+	for _, onDiskAtom := range onDiskAtoms {
+		found := false
+		for _, inDBAtom := range inDBAtoms {
+			if onDiskAtom.Name() == inDBAtom.Hash {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			err := os.Remove(atomfs.config.AtomsPath(onDiskAtom.Name()))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
