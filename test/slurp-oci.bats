@@ -17,4 +17,5 @@ function teardown() {
     ls "${TEST_DIR}/dir"
     grep atomfs /proc/self/mountinfo
     atomfs umount "${TEST_DIR}/centos"
+    atomfs fsck
 }

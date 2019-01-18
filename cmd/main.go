@@ -26,6 +26,7 @@ func main() {
 		slurpOCICmd,
 		mountCmd,
 		umountCmd,
+		fsckCmd,
 	}
 
 	app.Flags = []cli.Flag{

@@ -72,7 +72,7 @@ func (db *AtomfsDB) CreateAtom(name string, atomType string, content io.Reader) 
 	return types.Atom{id, name, hash, atomType}, nil
 }
 
-func (db *AtomfsDB) GetAtoms(rows *sql.Rows) ([]types.Atom, error) {
+func (db *AtomfsDB) getAtoms(rows *sql.Rows) ([]types.Atom, error) {
 	atoms := []types.Atom{}
 	for rows.Next() {
 		atom := types.Atom{}
@@ -84,6 +84,16 @@ func (db *AtomfsDB) GetAtoms(rows *sql.Rows) ([]types.Atom, error) {
 	}
 
 	return atoms, nil
+}
+
+func (db *AtomfsDB) GetAtoms() ([]types.Atom, error) {
+	rows, err := db.DB.Query("SELECT id, name, hash, type FROM atoms")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return db.getAtoms(rows)
 }
 
 func (db *AtomfsDB) CreateMolecule(name string, atoms []types.Atom) (types.Molecule, error) {
@@ -145,7 +155,7 @@ func (db *AtomfsDB) GetMolecule(name string) (types.Molecule, error) {
 	}
 	defer rows.Close()
 
-	mol.Atoms, err = db.GetAtoms(rows)
+	mol.Atoms, err = db.getAtoms(rows)
 	if err != nil {
 		return types.Molecule{}, err
 	}
