@@ -75,16 +75,18 @@ func (atomfs *Instance) FSCK() ([]string, error) {
 
 // GC does a garbage collection of atomfs, deleting any unused atoms, and any
 // files in the atom directory that aren't in the database.
-func (atomfs *Instance) GC() error {
+func (atomfs *Instance) GC(dryRun bool) error {
 	// First, let's prune unused atoms from the DB.
 	unusedAtoms, err := atomfs.db.GetUnusedAtoms()
 	if err != nil {
 		return err
 	}
 
-	for _, atom := range unusedAtoms {
-		if err := atomfs.db.DeleteThing(atom.ID, "atom"); err != nil {
-			return err
+	if !dryRun {
+		for _, atom := range unusedAtoms {
+			if err := atomfs.db.DeleteThing(atom.ID, "atom"); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -108,7 +110,7 @@ func (atomfs *Instance) GC() error {
 			}
 		}
 
-		if !found {
+		if !found && !dryRun {
 			err := os.Remove(atomfs.config.AtomsPath(onDiskAtom.Name()))
 			if err != nil {
 				return err
