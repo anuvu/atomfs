@@ -131,3 +131,12 @@ func (atomfs *Instance) CopyMolecule(dest string, src string) (types.Molecule, e
 
 	return atomfs.db.CreateMolecule(dest, mol.Atoms)
 }
+
+func (atomfs *Instance) DeleteMolecule(name string) error {
+	mol, err := atomfs.db.GetMolecule(name)
+	if err != nil {
+		return err
+	}
+
+	return atomfs.db.DeleteThing(mol.ID, "molecule")
+}
