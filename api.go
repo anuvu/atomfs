@@ -120,3 +120,14 @@ func (atomfs *Instance) GC(dryRun bool) error {
 
 	return nil
 }
+
+// CopyMolecule simply duplicates a molecule's configuration under a new name.
+// This is equivalent to a "snapshot" operation under other filesystems.
+func (atomfs *Instance) CopyMolecule(dest string, src string) (types.Molecule, error) {
+	mol, err := atomfs.db.GetMolecule(src)
+	if err != nil {
+		return types.Molecule{}, err
+	}
+
+	return atomfs.db.CreateMolecule(dest, mol.Atoms)
+}
