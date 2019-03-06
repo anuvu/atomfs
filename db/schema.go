@@ -32,7 +32,10 @@ CREATE TABLE IF NOT EXISTS molecule_atoms (
 	molecule_id INTEGER NOT NULL,
 	atom_id INTEGER NOT NULL,
 	FOREIGN KEY (molecule_id) REFERENCES molecules (id) ON DELETE CASCADE,
-	FOREIGN KEY (atom_id) REFERENCES molecules (id) ON DELETE CASCADE
+	// Note: we explicitly do not want ON DELETE CASCADE here. If we
+	// automatically delete unused atoms, we won't know to delete them from
+	// the FS.
+	FOREIGN KEY (atom_id)
 );
 `
 
