@@ -49,7 +49,7 @@ func (atomfs *Instance) slurpTag(oci casext.Engine, name string) error {
 		defer layer.Close()
 
 		atomType := ""
-		switch layer.MediaType {
+		switch layer.Descriptor.MediaType {
 		case ispec.MediaTypeImageLayer:
 			fallthrough
 		case ispec.MediaTypeImageLayerGzip:
@@ -59,7 +59,7 @@ func (atomfs *Instance) slurpTag(oci casext.Engine, name string) error {
 		case ispec.MediaTypeImageLayerNonDistributableGzip:
 			atomType = "tar"
 		default:
-			return errors.Errorf("unknown media type: %s", layer.MediaType)
+			return errors.Errorf("unknown media type: %s", layer.Descriptor.MediaType)
 		}
 
 		name := fmt.Sprintf("%s-%d", name, i)

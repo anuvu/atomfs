@@ -8,7 +8,10 @@ atomfs: $(GO_SRC)
 
 .PHONY: vendorup
 vendorup:
-	go get -u
+	go get -u \
+		gopkg.in/mattn/go-colorable.v0@efa589957cd060542a26d2dd7832fd6a6c6c3ade \
+		gopkg.in/mattn/go-isatty.v0@4684196194d794ae77a4dcad1a1bab9aee275dd7
+
 
 .PHONY: clean
 clean:
