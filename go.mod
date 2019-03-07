@@ -25,7 +25,8 @@ require (
 	github.com/klauspost/pgzip v1.2.1 // indirect
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/lxc/lxd v0.0.0-20181227184335-6556fcb5743f // indirect
-	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/mattn/go-colorable v0.1.0 // indirect
+	github.com/mattn/go-isatty v0.0.5-0.20180905160344-4684196194d7 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
