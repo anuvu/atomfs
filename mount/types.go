@@ -3,11 +3,12 @@ package mount
 import (
 	"os/exec"
 
+	"github.com/anuvu/atomfs/types"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 )
 
-var MountTypes map[string]func(string, string) error
+var MountTypes map[types.AtomType]func(string, string) error
 
 func mountTar(source string, dest string) error {
 	cmd := exec.Command("archivemount", source, dest)
@@ -24,7 +25,7 @@ func mountSquashfs(source string, dest string) error {
 }
 
 func init() {
-	MountTypes = map[string]func(string, string) error{}
+	MountTypes = map[types.AtomType]func(string, string) error{}
 	MountTypes["tar"] = mountTar
 	MountTypes["squashfs"] = mountSquashfs
 }

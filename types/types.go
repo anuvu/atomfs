@@ -11,7 +11,7 @@ type Atom struct {
 	ID   int64
 	Name string
 	Hash string
-	Type string
+	Type AtomType
 }
 
 type Molecule struct {
@@ -44,3 +44,10 @@ func (c Config) MountedAtomsPath(parts ...string) string {
 	os.MkdirAll(mounts, 0755)
 	return path.Join(append([]string{mounts}, parts...)...)
 }
+
+type AtomType string
+
+const (
+	TarAtom      AtomType = "tar"
+	SquashfsAtom AtomType = "squashfs"
+)

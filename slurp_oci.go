@@ -48,7 +48,7 @@ func (atomfs *Instance) slurpTag(oci casext.Engine, name string) error {
 		}
 		defer layer.Close()
 
-		atomType := ""
+		atomType := types.TarAtom
 		switch layer.Descriptor.MediaType {
 		case ispec.MediaTypeImageLayer:
 			fallthrough
@@ -57,7 +57,7 @@ func (atomfs *Instance) slurpTag(oci casext.Engine, name string) error {
 		case ispec.MediaTypeImageLayerNonDistributable:
 			fallthrough
 		case ispec.MediaTypeImageLayerNonDistributableGzip:
-			atomType = "tar"
+			atomType = types.TarAtom
 		default:
 			return errors.Errorf("unknown media type: %s", layer.Descriptor.MediaType)
 		}

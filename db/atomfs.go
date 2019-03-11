@@ -31,7 +31,7 @@ func (db *AtomfsDB) Close() error {
 	return db.DB.Close()
 }
 
-func (db *AtomfsDB) CreateAtom(name string, atomType string, content io.Reader) (types.Atom, error) {
+func (db *AtomfsDB) CreateAtom(name string, atomType types.AtomType, content io.Reader) (types.Atom, error) {
 	f, err := ioutil.TempFile(db.config.AtomsPath(), "create-atom-")
 	if err != nil {
 		return types.Atom{}, err
