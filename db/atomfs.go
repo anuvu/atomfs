@@ -149,7 +149,7 @@ func (db *AtomfsDB) GetMolecule(name string) (types.Molecule, error) {
 		SELECT atoms.id, atoms.name, atoms.hash, atoms.type
 		FROM atoms JOIN molecule_atoms ON atoms.id = molecule_atoms.atom_id
 		WHERE molecule_atoms.molecule_id = ?
-		ORDER BY atoms.id ASC`, mol.ID)
+		ORDER BY molecule_atoms.id ASC`, mol.ID)
 	if err != nil {
 		return types.Molecule{}, err
 	}
