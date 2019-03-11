@@ -17,7 +17,12 @@ the atomfs directory.
 }
 
 func doSlurpOCI(ctx *cli.Context) error {
-	fs, err := atomfs.New(getAtomfsConfig(ctx))
+	config, err := getAtomfsConfig(ctx)
+	if err != nil {
+		return err
+	}
+
+	fs, err := atomfs.New(config)
 	if err != nil {
 		return err
 	}

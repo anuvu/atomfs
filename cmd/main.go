@@ -13,8 +13,8 @@ var (
 	debug   = false
 )
 
-func getAtomfsConfig(ctx *cli.Context) types.Config {
-	return types.Config{Path: ctx.GlobalString("base-dir")}
+func getAtomfsConfig(ctx *cli.Context) (types.Config, error) {
+	return types.NewConfig(ctx.GlobalString("base-dir"))
 }
 
 func main() {

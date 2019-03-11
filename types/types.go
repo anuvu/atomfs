@@ -24,24 +24,30 @@ type Config struct {
 	Path string
 }
 
+func NewConfig(path string) (Config, error) {
+	config := Config{path}
+
+	if err := os.MkdirAll(config.AtomsPath(), 0755); err != nil {
+		return Config{}, err
+	}
+	if err := os.MkdirAll(config.MountedAtomsPath(), 0755); err != nil {
+		return Config{}, err
+	}
+
+	return config, nil
+}
+
 func (c Config) RelativePath(parts ...string) string {
 	return path.Join(append([]string{c.Path}, parts...)...)
 }
 
 func (c Config) AtomsPath(parts ...string) string {
 	atoms := c.RelativePath("atoms")
-	// We explicitly ignore the error here, because we expect it will
-	// succeed and it'll fail shortly thereafter if it doesn't. this way we
-	// don't have to add a *whole bunch* of error handling code where it's
-	// mostly unnecessary.
-	os.MkdirAll(atoms, 0755)
 	return path.Join(append([]string{atoms}, parts...)...)
 }
 
 func (c Config) MountedAtomsPath(parts ...string) string {
 	mounts := c.RelativePath("mounts")
-	// see note above.
-	os.MkdirAll(mounts, 0755)
 	return path.Join(append([]string{mounts}, parts...)...)
 }
 
