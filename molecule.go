@@ -4,6 +4,10 @@ import (
 	"github.com/anuvu/atomfs/types"
 )
 
+func (atomfs *Instance) CreateMolecule(name string, atoms []types.Atom) (types.Molecule, error) {
+	return atomfs.db.CreateMolecule(name, atoms)
+}
+
 // CopyMolecule simply duplicates a molecule's configuration under a new name.
 // This is equivalent to a "snapshot" operation under other filesystems.
 func (atomfs *Instance) CopyMolecule(dest string, src string) (types.Molecule, error) {
