@@ -33,6 +33,9 @@ func NewConfig(path string) (Config, error) {
 	if err := os.MkdirAll(config.MountedAtomsPath(), 0755); err != nil {
 		return Config{}, err
 	}
+	if err := os.MkdirAll(config.OverlayDirsPath(), 0755); err != nil {
+		return Config{}, err
+	}
 
 	return config, nil
 }
@@ -49,6 +52,11 @@ func (c Config) AtomsPath(parts ...string) string {
 func (c Config) MountedAtomsPath(parts ...string) string {
 	mounts := c.RelativePath("mounts")
 	return path.Join(append([]string{mounts}, parts...)...)
+}
+
+func (c Config) OverlayDirsPath(parts ...string) string {
+	overlayDirs := c.RelativePath("overlay-dirs")
+	return path.Join(append([]string{overlayDirs}, parts...)...)
 }
 
 type AtomType string

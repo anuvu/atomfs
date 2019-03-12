@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
-levels=57
+set -x
+
+levels=10
 
 lowerdirs=""
 for i in $(seq ${levels}); do
@@ -16,7 +18,7 @@ lowerdirs=${lowerdirs::-1}
 
 function cleanup() {
     umount target || true
-    rm -rf target || true
+    rm -rf target work upper || true
     for i in $(seq ${levels}); do
         rm -rf layer${i}* || true
     done
@@ -25,8 +27,18 @@ function cleanup() {
 trap cleanup EXIT HUP INT TERM
 
 mkdir -p target
-strace -s 1000000 mount -t overlay overlay "-olowerdir=${lowerdirs}" target
+mkdir -p work
+mkdir -p upper
+mount -t overlay overlay "-olowerdir=${lowerdirs},upperdir=upper,workdir=work" target
+rmdir upper
 
 for i in $(seq ${levels}); do
     stat target/${i} >& /dev/null || (echo "${i} missing" && exit 1)
 done
+
+touch target/writable
+
+ls -alh target
+ls -alh work
+ls -alh upper
+stat work/writable

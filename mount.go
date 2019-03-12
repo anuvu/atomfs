@@ -4,20 +4,20 @@ import (
 	"github.com/anuvu/atomfs/mount"
 )
 
-func (atomfs *Instance) Mount(molecule string, target string) error {
+func (atomfs *Instance) Mount(molecule string, target string, writable bool) error {
 	mol, err := atomfs.db.GetMolecule(molecule)
 	if err != nil {
 		return err
 	}
 
-	ovl, err := mount.NewOverlay(atomfs.config, mol.Atoms)
+	ovl, err := mount.NewOverlay(atomfs.config, mol, writable)
 	if err != nil {
 		return err
 	}
 
-	return ovl.Mount(target)
+	return ovl.Mount(target, writable)
 }
 
 func (atomfs *Instance) Umount(target string) error {
-	return mount.Umount(target)
+	return mount.Umount(atomfs.config, target)
 }

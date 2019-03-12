@@ -2,6 +2,7 @@ package mount
 
 import (
 	"bufio"
+	"crypto/sha256"
 	"fmt"
 	"os"
 	"path"
@@ -13,27 +14,30 @@ import (
 )
 
 type Overlay struct {
-	config types.Config
-	atoms  []types.Atom
+	config   types.Config
+	mol      types.Molecule
+	writable bool
 }
 
-func NewOverlay(config types.Config, atoms []types.Atom) (*Overlay, error) {
-	return &Overlay{config: config, atoms: atoms}, nil
+func NewOverlay(config types.Config, mol types.Molecule, writable bool) (*Overlay, error) {
+	return &Overlay{config: config, mol: mol, writable: writable}, nil
 }
 
-func (o *Overlay) Mount(dest string) error {
+func (o *Overlay) Mount(dest string, writable bool) error {
 	// The kernel unfortunately doesn't support mntopts > 4096 characters,
 	// so let's figure out if we've got too many atoms here:
 	//     len("lowerdir=") + len(o.atoms) * (len(config.Path) + len("/atoms/") + 64 + 1)
 	// * 64 is the len(sha256sum) + 1 for the : separator
-	charCount := len("lowerdir=") + len(o.atoms)*(len(o.config.Path)+len("/atoms/")+64+1)
+	// * 2 + len(o.atoms) for workDir and lowerDir (unconditional, even
+	//   though it's conditioned on writable)
+	charCount := len("lowerdir=") + (2+len(o.mol.Atoms))*(len(o.config.Path)+len("/atoms/")+64+1)
 	if charCount > 4096 {
 		return fmt.Errorf("too many lower dirs; must have fewer than 4096 chars")
 	}
 
 	dirs := []string{}
 	// first, mount everything
-	for _, a := range o.atoms {
+	for _, a := range o.mol.Atoms {
 		target := o.config.MountedAtomsPath(a.Hash)
 		dirs = append(dirs, target)
 		_, err := os.Stat(target)
@@ -71,8 +75,36 @@ func (o *Overlay) Mount(dest string) error {
 		dirs = append(dirs, workaround)
 	}
 
+	mntOpts := "lowerdir=" + strings.Join(dirs, ":")
+	if writable {
+		// In order to make it so that we can Unmount() without saving
+		// any state, we construct special names for the workdir and
+		// upperdir:
+		//   sha256(dest)/{upperdir|workdir}
+		// Note that if this already exists, we don't want to re-use it
+		// (and indeed we can't, overlay will fail the mount); this
+		// means that there can only ever be one atomfs mount at a
+		// particular location. That doesn't seem too big a deal, though.
+		upperDir := o.config.OverlayDirsPath(sha256string(dest), "upperdir")
+		workDir := o.config.OverlayDirsPath(sha256string(dest), "workdir")
+
+		_, err := os.Stat(workDir)
+		if err == nil {
+			return errors.Errorf("%s is already an atomfs mountpoint", dest)
+		}
+
+		if err := os.MkdirAll(upperDir, 0755); err != nil {
+			return err
+		}
+		if err := os.MkdirAll(workDir, 0755); err != nil {
+			return err
+		}
+
+		mntOpts += fmt.Sprintf(",upperdir=%s,workdir=%s", upperDir, workDir)
+	}
+
 	// now, do the actual overlay mount
-	err := unix.Mount("overlay", dest, "overlay", 0, "lowerdir="+strings.Join(dirs, ":"))
+	err := unix.Mount("overlay", dest, "overlay", 0, mntOpts)
 	return errors.Wrapf(err, "couldn't do overlay mount")
 }
 
@@ -88,7 +120,7 @@ func getOverlayDirs(m Mount) []string {
 	return []string{}
 }
 
-func Umount(dest string) error {
+func Umount(config types.Config, dest string) error {
 	mounts, err := ParseMounts()
 	if err != nil {
 		return err
@@ -109,6 +141,12 @@ func Umount(dest string) error {
 	}
 
 	if err := unix.Unmount(dest, 0); err != nil {
+		return err
+	}
+
+	// If this was writable, we should clean up the work/upperdir.
+	err = os.RemoveAll(config.OverlayDirsPath(sha256string(dest)))
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
@@ -189,4 +227,10 @@ func ParseMounts() ([]Mount, error) {
 	}
 
 	return mounts, nil
+}
+
+func sha256string(s string) string {
+	h := sha256.New()
+	h.Write([]byte(s))
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
