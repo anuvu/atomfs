@@ -27,6 +27,7 @@ func main() {
 		mountCmd,
 		umountCmd,
 		fsckCmd,
+		gcCmd,
 	}
 
 	app.Flags = []cli.Flag{
