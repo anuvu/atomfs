@@ -128,7 +128,6 @@ func Umount(config types.Config, dest string) error {
 
 	underlyingAtoms := []string{}
 	for _, m := range mounts {
-		fmt.Println("checking", m.FSType, "mount", m.Target)
 		if m.Target != dest || m.FSType != "overlay" {
 			continue
 		}
