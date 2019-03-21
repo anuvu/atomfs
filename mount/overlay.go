@@ -75,6 +75,8 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 		dirs = append(dirs, workaround)
 	}
 
+	// Note that in overlayfs, the first thing is the top most layer in the
+	// overlay.
 	mntOpts := "lowerdir=" + strings.Join(dirs, ":")
 	if writable {
 		// In order to make it so that we can Unmount() without saving
