@@ -29,9 +29,11 @@ require (
 	golang.org/x/sys v0.0.0-20190204203706-41f3e6584952
 	golang.org/x/text v0.3.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/mattn/go-colorable.v0 v0.1.0 // indirect
+	gopkg.in/mattn/go-isatty.v0 v0.0.5-0.20180905160344-4684196194d7 // indirect
 	k8s.io/client-go v10.0.0+incompatible // indirect
 )
 
 replace github.com/vbatts/go-mtree v0.4.4 => github.com/vbatts/go-mtree v0.4.5-0.20190122034725-8b6de6073c1a
 
-replace github.com/openSUSE/umoci v0.4.4 => github.com/tych0/umoci v0.0.0-20190209041853-4ad066106584
+replace github.com/openSUSE/umoci => github.com/tych0/umoci v0.0.0-20190209041853-4ad066106584
