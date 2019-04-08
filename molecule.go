@@ -32,6 +32,14 @@ func (atomfs *Instance) DeleteMolecule(name string) error {
 	return atomfs.db.DeleteThing(mol.ID, "molecule")
 }
 
+func (atomfs *Instance) RenameMolecule(old, new_ string) error {
+	mol, err := atomfs.db.GetMolecule(old)
+	if err != nil {
+		return err
+	}
+	return atomfs.db.RenameThing(mol.ID, "molecule", new_)
+}
+
 func (atomfs *Instance) CreateMoleculeFromOCITag(oci casext.Engine, name string) (types.Molecule, error) {
 	man, err := stacker.LookupManifest(oci, name)
 	if err != nil {
@@ -69,4 +77,8 @@ func (atomfs *Instance) CreateMoleculeFromOCITag(oci casext.Engine, name string)
 	}
 
 	return atomfs.db.CreateMolecule(name, atoms)
+}
+
+func (atomfs *Instance) GetMolecule(name string) (types.Molecule, error) {
+	return atomfs.db.GetMolecule(name)
 }

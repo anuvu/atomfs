@@ -183,3 +183,8 @@ func (db *AtomfsDB) DeleteThing(id int64, table string) error {
 	_, err := db.DB.Exec(fmt.Sprintf("DELETE FROM %ss WHERE id = ?", table), id)
 	return err
 }
+
+func (db *AtomfsDB) RenameThing(id int64, table string, newName string) error {
+	_, err := db.DB.Exec(fmt.Sprintf("UPDATE %ss SET name = ? WHERE id = ?", table), newName, id)
+	return err
+}
