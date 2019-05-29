@@ -2,8 +2,7 @@ module github.com/anuvu/atomfs
 
 require (
 	github.com/Microsoft/go-winio v0.4.12 // indirect
-	github.com/VividCortex/ewma v1.1.1 // indirect
-	github.com/anuvu/stacker v0.4.0
+	github.com/anuvu/stacker v0.4.1-0.20190529163447-b47a792404fc
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/containers/image v1.5.1 // indirect
 	github.com/containers/storage v1.12.2 // indirect
@@ -27,7 +26,6 @@ require (
 	github.com/sirupsen/logrus v1.4.1 // indirect
 	github.com/ulikunitz/xz v0.5.6 // indirect
 	github.com/urfave/cli v1.20.0
-	github.com/vbauerster/mpb v3.4.0+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5 // indirect
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 // indirect
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6 // indirect

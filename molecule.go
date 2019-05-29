@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/anuvu/atomfs/types"
-	"github.com/anuvu/stacker"
+	stackeroci "github.com/anuvu/stacker/oci"
 	"github.com/openSUSE/umoci/oci/casext"
 )
 
@@ -41,7 +41,7 @@ func (atomfs *Instance) RenameMolecule(old, new_ string) error {
 }
 
 func (atomfs *Instance) CreateMoleculeFromOCITag(oci casext.Engine, name string) (types.Molecule, error) {
-	man, err := stacker.LookupManifest(oci, name)
+	man, err := stackeroci.LookupManifest(oci, name)
 	if err != nil {
 		return types.Molecule{}, err
 	}

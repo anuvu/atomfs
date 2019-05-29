@@ -4,7 +4,6 @@ import (
 	"io"
 
 	"github.com/anuvu/atomfs/types"
-	"github.com/anuvu/stacker"
 	"github.com/openSUSE/umoci/oci/casext"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
@@ -29,7 +28,8 @@ func (atomfs *Instance) CreateAtomFromOCIBlob(blob *casext.Blob) (types.Atom, er
 		fallthrough
 	case ispec.MediaTypeImageLayerNonDistributableGzip:
 		atomType = types.TarAtom
-	case stacker.MediaTypeLayerSquashfs:
+	// stolen from stacker:base.go
+	case "application/vnd.oci.image.layer.squashfs":
 		atomType = types.SquashfsAtom
 	default:
 		return types.Atom{}, errors.Errorf("unknown media type: %s", blob.Descriptor.MediaType)
