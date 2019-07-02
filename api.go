@@ -93,6 +93,11 @@ func (atomfs *Instance) GC(dryRun bool) error {
 	// Now, delete everything that's on disk that isn't in our DB.
 	onDiskAtoms, err := ioutil.ReadDir(atomfs.config.AtomsPath())
 	if err != nil {
+		// It's possible that there may not have been any atoms
+		// imported yet. Don't fail in this case.
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return err
 	}
 
