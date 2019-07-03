@@ -107,7 +107,7 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 
 	// now, do the actual overlay mount
 	err := unix.Mount("overlay", dest, "overlay", 0, mntOpts)
-	return errors.Wrapf(err, "couldn't do overlay mount")
+	return errors.Wrapf(err, "couldn't do overlay mount to %s, opts: %s", dest, mntOpts)
 }
 
 func getOverlayDirs(m Mount) []string {
