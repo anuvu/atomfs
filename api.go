@@ -9,6 +9,7 @@ import (
 
 	"github.com/anuvu/atomfs/db"
 	"github.com/anuvu/atomfs/types"
+	"github.com/schollz/sqlite3dump"
 )
 
 type Instance struct {
@@ -124,4 +125,20 @@ func (atomfs *Instance) GC(dryRun bool) error {
 	}
 
 	return nil
+}
+
+// DumpDB() dumps the underlying sqlite3 db for inspection.
+func (atomfs *Instance) DumpDB() io.ReadCloser {
+	reader, writer := io.Pipe()
+
+	go func() {
+		err := sqlite3dump.DumpMigration(atomfs.db.DB, writer)
+		if err != nil {
+			writer.CloseWithError(err)
+		} else {
+			writer.Close()
+		}
+	}()
+
+	return reader
 }

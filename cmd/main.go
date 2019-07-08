@@ -29,6 +29,7 @@ func main() {
 		fsckCmd,
 		gcCmd,
 		initCmd,
+		dumpDBCmd,
 	}
 
 	app.Flags = []cli.Flag{

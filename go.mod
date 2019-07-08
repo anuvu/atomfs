@@ -6,6 +6,7 @@ require (
 	github.com/openSUSE/umoci v0.4.4
 	github.com/opencontainers/image-spec v1.0.1
 	github.com/pkg/errors v0.8.1
+	github.com/schollz/sqlite3dump v1.2.4
 	github.com/sirupsen/logrus v1.4.1 // indirect
 	github.com/urfave/cli v1.20.0
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5 // indirect
