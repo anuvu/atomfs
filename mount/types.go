@@ -21,7 +21,8 @@ func mountTar(source string, dest string) error {
 }
 
 func mountSquashfs(source string, dest string) error {
-	return unix.Mount(source, dest, "squashfs", 0, "")
+	err := unix.Mount(source, dest, "squashfs", 0, "")
+	return errors.Wrapf(err, "couldn't mount %s to %s", source, dest)
 }
 
 func init() {
