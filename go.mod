@@ -2,6 +2,7 @@ module github.com/anuvu/atomfs
 
 require (
 	github.com/anuvu/stacker v0.4.1-0.20190607155931-46d8ec0d501e
+	github.com/freddierice/go-losetup v0.0.0-20170407175016-fc9adea44124
 	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/openSUSE/umoci v0.4.4
 	github.com/opencontainers/image-spec v1.0.1

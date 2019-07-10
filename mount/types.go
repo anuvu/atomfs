@@ -4,6 +4,7 @@ import (
 	"os/exec"
 
 	"github.com/anuvu/atomfs/types"
+	"github.com/freddierice/go-losetup"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 )
@@ -21,7 +22,13 @@ func mountTar(source string, dest string) error {
 }
 
 func mountSquashfs(source string, dest string) error {
-	err := unix.Mount(source, dest, "squashfs", 0, "")
+	dev, err := losetup.Attach(source, 0, false)
+	if err != nil {
+		return err
+	}
+	defer dev.Detach()
+
+	err = unix.Mount(dev.Path(), dest, "squashfs", 0, "")
 	return errors.Wrapf(err, "couldn't mount %s to %s", source, dest)
 }
 
