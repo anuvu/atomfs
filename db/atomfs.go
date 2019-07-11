@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/anuvu/atomfs/types"
+	"github.com/pkg/errors"
 )
 
 type AtomfsDB struct {
@@ -138,11 +139,17 @@ func (db *AtomfsDB) GetMolecule(name string) (types.Molecule, error) {
 	defer rows.Close()
 
 	mol := types.Molecule{}
+	found := false
 	for rows.Next() {
 		err = rows.Scan(&mol.ID, &mol.Name)
 		if err != nil {
 			return types.Molecule{}, err
 		}
+		found = true
+	}
+
+	if !found {
+		return types.Molecule{}, errors.Errorf("molecule %s not found", name)
 	}
 
 	rows, err = db.DB.Query(`
