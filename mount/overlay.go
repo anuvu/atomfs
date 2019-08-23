@@ -32,7 +32,7 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 	//   though it's conditioned on writable)
 	charCount := len("lowerdir=") + (2+len(o.mol.Atoms))*(len(o.config.Path)+len("/atoms/")+64+1)
 	if charCount > 4096 {
-		return fmt.Errorf("too many lower dirs; must have fewer than 4096 chars")
+		return errors.Errorf("too many lower dirs; must have fewer than 4096 chars")
 	}
 
 	dirs := []string{}
