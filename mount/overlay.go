@@ -35,18 +35,19 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 		return errors.Errorf("too many lower dirs; must have fewer than 4096 chars")
 	}
 
+	mounts, err := ParseMounts()
+	if err != nil {
+		return errors.Wrapf(err, "couldn't parse mounts")
+	}
+
 	dirs := []string{}
 	// first, mount everything
 	for _, a := range o.mol.Atoms {
 		target := o.config.MountedAtomsPath(a.Hash)
 		dirs = append(dirs, target)
-		_, err := os.Stat(target)
-		if err == nil {
-			continue
-		}
 
-		if !os.IsNotExist(err) {
-			return err
+		if mounts.IsMountpoint(target) {
+			continue
 		}
 
 		if err := os.MkdirAll(target, 755); err != nil {
@@ -101,7 +102,7 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 	}
 
 	// now, do the actual overlay mount
-	err := unix.Mount("overlay", dest, "overlay", 0, mntOpts)
+	err = unix.Mount("overlay", dest, "overlay", 0, mntOpts)
 	return errors.Wrapf(err, "couldn't do overlay mount to %s, opts: %s", dest, mntOpts)
 }
 
@@ -194,7 +195,19 @@ type Mount struct {
 	Opts   []string
 }
 
-func ParseMounts() ([]Mount, error) {
+type Mounts []Mount
+
+func (ms Mounts) IsMountpoint(p string) bool {
+	for _, m := range ms {
+		if m.Target == p {
+			return true
+		}
+	}
+
+	return false
+}
+
+func ParseMounts() (Mounts, error) {
 	f, err := os.Open("/proc/self/mountinfo")
 	if err != nil {
 		return nil, err
