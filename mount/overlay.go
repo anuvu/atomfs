@@ -90,11 +90,6 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 		upperDir := o.config.OverlayDirsPath(sha256string(dest), "upperdir")
 		workDir := o.config.OverlayDirsPath(sha256string(dest), "workdir")
 
-		_, err := os.Stat(workDir)
-		if err == nil {
-			return errors.Errorf("%s is already an atomfs mountpoint", dest)
-		}
-
 		if err := os.MkdirAll(upperDir, 0755); err != nil {
 			return err
 		}
