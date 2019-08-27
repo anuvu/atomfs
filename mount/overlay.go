@@ -23,25 +23,15 @@ func NewOverlay(config types.Config, mol types.Molecule, writable bool) (*Overla
 	return &Overlay{config: config, mol: mol, writable: writable}, nil
 }
 
-func (o *Overlay) Mount(dest string, writable bool) error {
-	// The kernel unfortunately doesn't support mntopts > 4096 characters,
-	// so let's figure out if we've got too many atoms here:
-	//     len("lowerdir=") + len(o.atoms) * (len(config.Path) + len("/atoms/") + 64 + 1)
-	// * 64 is the len(sha256sum) + 1 for the : separator
-	// * 2 + len(o.atoms) for workDir and lowerDir (unconditional, even
-	//   though it's conditioned on writable)
-	charCount := len("lowerdir=") + (2+len(o.mol.Atoms))*(len(o.config.Path)+len("/atoms/")+64+1)
-	if charCount > 4096 {
-		return errors.Errorf("too many lower dirs; must have fewer than 4096 chars")
-	}
-
+// MountUnderlyingAtoms mounts all the underlying atoms at
+// config.MountedAtomsPath().
+func (o *Overlay) MountUnderlyingAtoms() error {
 	mounts, err := ParseMounts()
 	if err != nil {
 		return errors.Wrapf(err, "couldn't parse mounts")
 	}
 
 	dirs := []string{}
-	// first, mount everything
 	for _, a := range o.mol.Atoms {
 		target := o.config.MountedAtomsPath(a.Hash)
 		dirs = append(dirs, target)
@@ -64,13 +54,25 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 		}
 	}
 
+	return nil
+}
+
+// OverlayArgs returns all of the mount options to pass to the kernel to
+// actually mount this molecule.
+func (o *Overlay) OverlayArgs(dest string, writable bool) (string, error) {
+	dirs := []string{}
+	for _, a := range o.mol.Atoms {
+		target := o.config.MountedAtomsPath(a.Hash)
+		dirs = append(dirs, target)
+	}
+
 	// overlay doesn't work with one lowerdir. so we do a hack here: we
 	// just create an empty directory called "workaround" in the mounts
 	// directory, and add that to the dir list if it's of length one.
 	if len(dirs) == 1 {
 		workaround := o.config.MountedAtomsPath("workaround")
 		if err := os.MkdirAll(workaround, 755); err != nil {
-			return errors.Wrapf(err, "couldn't make workaround dir")
+			return "", errors.Wrapf(err, "couldn't make workaround dir")
 		}
 
 		dirs = append(dirs, workaround)
@@ -92,13 +94,33 @@ func (o *Overlay) Mount(dest string, writable bool) error {
 		workDir := o.config.OverlayDirsPath(sha256string(dest), "workdir")
 
 		if err := os.MkdirAll(upperDir, 0755); err != nil {
-			return err
+			return "", err
 		}
 		if err := os.MkdirAll(workDir, 0755); err != nil {
-			return err
+			return "", err
 		}
 
 		mntOpts += fmt.Sprintf(",upperdir=%s,workdir=%s", upperDir, workDir)
+	}
+
+	return mntOpts, nil
+}
+
+func (o *Overlay) Mount(dest string, writable bool) error {
+	mntOpts, err := o.OverlayArgs(dest, writable)
+	if err != nil {
+		return err
+	}
+
+	// The kernel doesn't allow mount options longer than 4096 chars, so
+	// let's give a nicer error than -EINVAL here.
+	if len(mntOpts) > 4096 {
+		return errors.Errorf("too many lower dirs; must have fewer than 4096 chars")
+	}
+
+	err = o.MountUnderlyingAtoms()
+	if err != nil {
+		return err
 	}
 
 	// now, do the actual overlay mount
