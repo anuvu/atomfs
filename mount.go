@@ -1,7 +1,7 @@
 package atomfs
 
 import (
-	"github.com/anuvu/atomfs/mount"
+	"github.com/anuvu/atomfs/types"
 )
 
 func (atomfs *Instance) Mount(molecule string, target string, writable bool) error {
@@ -10,14 +10,9 @@ func (atomfs *Instance) Mount(molecule string, target string, writable bool) err
 		return err
 	}
 
-	ovl, err := mount.NewOverlay(atomfs.config, mol)
-	if err != nil {
-		return err
-	}
-
-	return ovl.Mount(target, writable)
+	return mol.Mount(target, writable)
 }
 
 func (atomfs *Instance) Umount(target string) error {
-	return mount.Umount(atomfs.config, target)
+	return types.Umount(atomfs.config, target)
 }
