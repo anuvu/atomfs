@@ -22,7 +22,7 @@ function teardown() {
 
 @test "make fs writable" {
     atomfs slurp-oci "${TEST_DIR}/oci"
-    mkdir "${TEST_DIR}/centos"
+    mkdir -p "${TEST_DIR}/centos"
     atomfs mount --writable centos "${TEST_DIR}/centos"
     touch "${TEST_DIR}/centos/foo"
     atomfs umount "${TEST_DIR}/centos"
