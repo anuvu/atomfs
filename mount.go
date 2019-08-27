@@ -10,7 +10,7 @@ func (atomfs *Instance) Mount(molecule string, target string, writable bool) err
 		return err
 	}
 
-	ovl, err := mount.NewOverlay(atomfs.config, mol, writable)
+	ovl, err := mount.NewOverlay(atomfs.config, mol)
 	if err != nil {
 		return err
 	}

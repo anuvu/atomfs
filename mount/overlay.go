@@ -16,11 +16,10 @@ import (
 type Overlay struct {
 	config   types.Config
 	mol      types.Molecule
-	writable bool
 }
 
-func NewOverlay(config types.Config, mol types.Molecule, writable bool) (*Overlay, error) {
-	return &Overlay{config: config, mol: mol, writable: writable}, nil
+func NewOverlay(config types.Config, mol types.Molecule) (*Overlay, error) {
+	return &Overlay{config: config, mol: mol}, nil
 }
 
 // MountUnderlyingAtoms mounts all the underlying atoms at
