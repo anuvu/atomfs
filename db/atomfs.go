@@ -128,7 +128,11 @@ func (db *AtomfsDB) CreateMolecule(name string, atoms []types.Atom) (types.Molec
 		}
 	}
 
-	return types.Molecule{id, name, atoms}, nil
+	mol := types.NewMolecule(db.config)
+	mol.ID = id
+	mol.Name = name
+	mol.Atoms = atoms
+	return mol, nil
 }
 
 func (db *AtomfsDB) GetMolecule(name string) (types.Molecule, error) {
@@ -138,7 +142,7 @@ func (db *AtomfsDB) GetMolecule(name string) (types.Molecule, error) {
 	}
 	defer rows.Close()
 
-	mol := types.Molecule{}
+	mol := types.NewMolecule(db.config)
 	found := false
 	for rows.Next() {
 		err = rows.Scan(&mol.ID, &mol.Name)
