@@ -20,9 +20,10 @@ type AtomfsDB struct {
 }
 
 func New(config types.Config) (*AtomfsDB, error) {
-	db, err := openSqlite(config.RelativePath("atomfs.db"))
+	p := config.RelativePath("atomfs.db")
+	db, err := openSqlite(p)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "error opening db at %s", p)
 	}
 
 	return &AtomfsDB{db, config}, nil
@@ -35,7 +36,7 @@ func (db *AtomfsDB) Close() error {
 func (db *AtomfsDB) CreateAtom(name string, atomType types.AtomType, content io.Reader) (types.Atom, error) {
 	f, err := ioutil.TempFile(db.config.AtomsPath(), "create-atom-")
 	if err != nil {
-		return types.Atom{}, err
+		return types.Atom{}, errors.Wrapf(err, "error creating tempfile for atom import")
 	}
 	defer f.Close()
 
@@ -44,30 +45,30 @@ func (db *AtomfsDB) CreateAtom(name string, atomType types.AtomType, content io.
 
 	_, err = io.Copy(w, content)
 	if err != nil {
-		return types.Atom{}, err
+		return types.Atom{}, errors.Wrapf(err, "error copying data to atom import file")
 	}
 
 	hash := fmt.Sprintf("%x", h.Sum(nil))
 	f.Close()
 	err = os.Rename(f.Name(), db.config.AtomsPath(hash))
 	if err != nil {
-		return types.Atom{}, err
+		return types.Atom{}, errors.Wrapf(err, "error renaming atom import file")
 	}
 
 	stmt, err := db.DB.Prepare("INSERT INTO atoms (name, hash, type) VALUES (?, ?, ?)")
 	if err != nil {
-		return types.Atom{}, err
+		return types.Atom{}, errors.Wrapf(err, "error preparing atom insert")
 	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(name, hash, atomType)
 	if err != nil {
-		return types.Atom{}, err
+		return types.Atom{}, errors.Wrapf(err, "error inserting atom")
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		return types.Atom{}, err
+		return types.Atom{}, errors.Wrapf(err, "error getting last atom insert id")
 	}
 
 	return types.Atom{id, name, hash, atomType}, nil
@@ -79,7 +80,7 @@ func (db *AtomfsDB) getAtoms(rows *sql.Rows) ([]types.Atom, error) {
 		atom := types.Atom{}
 		err := rows.Scan(&atom.ID, &atom.Name, &atom.Hash, &atom.Type)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "error scanning row")
 		}
 		atoms = append(atoms, atom)
 	}
@@ -90,7 +91,7 @@ func (db *AtomfsDB) getAtoms(rows *sql.Rows) ([]types.Atom, error) {
 func (db *AtomfsDB) GetAtoms() ([]types.Atom, error) {
 	rows, err := db.DB.Query("SELECT id, name, hash, type FROM atoms")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "error querying atoms")
 	}
 	defer rows.Close()
 
@@ -100,13 +101,13 @@ func (db *AtomfsDB) GetAtoms() ([]types.Atom, error) {
 func (db *AtomfsDB) CreateMolecule(name string, atoms []types.Atom) (types.Molecule, error) {
 	stmt, err := db.DB.Prepare("INSERT INTO molecules (name) VALUES (?)")
 	if err != nil {
-		return types.Molecule{}, err
+		return types.Molecule{}, errors.Wrapf(err, "error preparing molecule insert")
 	}
 
 	result, err := stmt.Exec(name)
 	stmt.Close()
 	if err != nil {
-		return types.Molecule{}, err
+		return types.Molecule{}, errors.Wrapf(err, "error inserting molecule")
 	}
 
 	stmt, err = db.DB.Prepare("INSERT INTO molecule_atoms (molecule_id, atom_id) VALUES (?, ?)")
