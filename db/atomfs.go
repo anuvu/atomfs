@@ -19,7 +19,7 @@ type AtomfsDB struct {
 	config types.Config
 }
 
-func New(config types.Config) (*AtomfsDB, error) {
+func New(config types.DBBasedConfig) (*AtomfsDB, error) {
 	p := config.RelativePath("atomfs.db")
 	db, err := openSqlite(p)
 	if err != nil {

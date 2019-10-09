@@ -14,41 +14,47 @@ type Atom struct {
 	Type AtomType
 }
 
-type Config struct {
+type Config interface {
+	AtomsPath(parts ...string) string
+	MountedAtomsPath(parts ...string) string
+	OverlayDirsPath(parts ...string) string
+}
+
+type DBBasedConfig struct {
 	Path string
 }
 
-func NewConfig(path string) (Config, error) {
-	config := Config{path}
+func NewDBBasedConfig(path string) (DBBasedConfig, error) {
+	config := DBBasedConfig{path}
 
 	if err := os.MkdirAll(config.AtomsPath(), 0755); err != nil {
-		return Config{}, err
+		return DBBasedConfig{}, err
 	}
 	if err := os.MkdirAll(config.MountedAtomsPath(), 0755); err != nil {
-		return Config{}, err
+		return DBBasedConfig{}, err
 	}
 	if err := os.MkdirAll(config.OverlayDirsPath(), 0755); err != nil {
-		return Config{}, err
+		return DBBasedConfig{}, err
 	}
 
 	return config, nil
 }
 
-func (c Config) RelativePath(parts ...string) string {
+func (c DBBasedConfig) RelativePath(parts ...string) string {
 	return path.Join(append([]string{c.Path}, parts...)...)
 }
 
-func (c Config) AtomsPath(parts ...string) string {
+func (c DBBasedConfig) AtomsPath(parts ...string) string {
 	atoms := c.RelativePath("atoms")
 	return path.Join(append([]string{atoms}, parts...)...)
 }
 
-func (c Config) MountedAtomsPath(parts ...string) string {
+func (c DBBasedConfig) MountedAtomsPath(parts ...string) string {
 	mounts := c.RelativePath("mounts")
 	return path.Join(append([]string{mounts}, parts...)...)
 }
 
-func (c Config) OverlayDirsPath(parts ...string) string {
+func (c DBBasedConfig) OverlayDirsPath(parts ...string) string {
 	overlayDirs := c.RelativePath("overlay-dirs")
 	return path.Join(append([]string{overlayDirs}, parts...)...)
 }

@@ -17,7 +17,7 @@ type Instance struct {
 	db     *db.AtomfsDB
 }
 
-func New(config types.Config) (*Instance, error) {
+func New(config types.DBBasedConfig) (*Instance, error) {
 	if err := os.MkdirAll(config.Path, 0755); err != nil {
 		if !os.IsExist(err) {
 			return nil, err
