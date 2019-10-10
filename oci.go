@@ -32,23 +32,23 @@ func (c MountOCIOpts) OverlayDirsPath(parts ...string) string {
 	return path.Join(append([]string{overlayDirs}, parts...)...)
 }
 
-func MountOCI(opts MountOCIOpts) error {
+func BuildMoleculeFromOCI(opts MountOCIOpts) (types.Molecule, error) {
 	oci, err := umoci.OpenLayout(opts.OCIDir)
 	if err != nil {
-		return err
+		return types.Molecule{}, err
 	}
 	defer oci.Close()
 
 	man, err := stackeroci.LookupManifest(oci, opts.Tag)
 	if err != nil {
-		return err
+		return types.Molecule{}, err
 	}
 
 	atoms := []types.Atom{}
 	for _, l := range man.Layers {
 		layer, err := oci.FromDescriptor(context.Background(), l)
 		if err != nil {
-			return err
+			return types.Molecule{}, err
 		}
 		defer layer.Close()
 
@@ -74,7 +74,7 @@ func MountOCI(opts MountOCIOpts) error {
 	mol.Name = opts.Tag
 	mol.Atoms = atoms
 
-	return mol.Mount(opts.Target, opts.Writable)
+	return mol, nil
 }
 
 func UnmountOCI(opts MountOCIOpts) error {
