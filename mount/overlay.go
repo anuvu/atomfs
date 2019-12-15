@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type Mount struct {
@@ -28,7 +30,7 @@ func (ms Mounts) IsMountpoint(p string) bool {
 func ParseMounts() (Mounts, error) {
 	f, err := os.Open("/proc/self/mountinfo")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "couldn't open /proc/self/mountinfo")
 	}
 	defer f.Close()
 
