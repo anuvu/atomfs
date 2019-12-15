@@ -55,3 +55,16 @@ func ParseMounts() (Mounts, error) {
 
 	return mounts, nil
 }
+
+func GetOverlayDirs(m Mount) []string {
+	for _, opt := range m.Opts {
+		if !strings.HasPrefix(opt, "lowerdir=") {
+			continue
+		}
+
+		return strings.Split(strings.TrimPrefix(opt, "lowerdir="), ":")
+	}
+
+	return []string{}
+}
+

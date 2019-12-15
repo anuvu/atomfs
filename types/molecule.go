@@ -137,18 +137,6 @@ func (m Molecule) Mount(dest string, writable bool) error {
 	return errors.Wrapf(err, "couldn't do overlay mount to %s, opts: %s", dest, mntOpts)
 }
 
-func getOverlayDirs(m mount.Mount) []string {
-	for _, opt := range m.Opts {
-		if !strings.HasPrefix(opt, "lowerdir=") {
-			continue
-		}
-
-		return strings.Split(strings.TrimPrefix(opt, "lowerdir="), ":")
-	}
-
-	return []string{}
-}
-
 func Umount(config Config, dest string) error {
 	mounts, err := mount.ParseMounts()
 	if err != nil {
@@ -161,7 +149,7 @@ func Umount(config Config, dest string) error {
 			continue
 		}
 
-		underlyingAtoms = getOverlayDirs(m)
+		underlyingAtoms = mount.GetOverlayDirs(m)
 	}
 
 	if len(underlyingAtoms) == 0 {
@@ -192,7 +180,7 @@ func Umount(config Config, dest string) error {
 			continue
 		}
 
-		dirs := getOverlayDirs(m)
+		dirs := mount.GetOverlayDirs(m)
 		for _, d := range dirs {
 			usedAtoms[d] = true
 		}
