@@ -27,8 +27,8 @@ func (ms Mounts) IsMountpoint(p string) bool {
 	return false
 }
 
-func ParseMounts() (Mounts, error) {
-	f, err := os.Open("/proc/self/mountinfo")
+func ParseMounts(mountinfo string) (Mounts, error) {
+	f, err := os.Open(mountinfo)
 	if err != nil {
 		return nil, errors.Wrapf(err, "couldn't open /proc/self/mountinfo")
 	}

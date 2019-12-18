@@ -29,7 +29,7 @@ func NewMolecule(config Config) Molecule {
 // MountUnderlyingAtoms mounts all the underlying atoms at
 // config.MountedAtomsPath().
 func (m Molecule) MountUnderlyingAtoms() error {
-	mounts, err := mount.ParseMounts()
+	mounts, err := mount.ParseMounts("/proc/self/mountinfo")
 	if err != nil {
 		return errors.Wrapf(err, "couldn't parse mounts")
 	}
@@ -138,7 +138,7 @@ func (m Molecule) Mount(dest string, writable bool) error {
 }
 
 func Umount(config Config, dest string) error {
-	mounts, err := mount.ParseMounts()
+	mounts, err := mount.ParseMounts("/proc/self/mountinfo")
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func Umount(config Config, dest string) error {
 	// unused
 	usedAtoms := map[string]bool{}
 
-	mounts, err = mount.ParseMounts()
+	mounts, err = mount.ParseMounts("/proc/self/mountinfo")
 	if err != nil {
 		return err
 	}
