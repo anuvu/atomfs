@@ -89,7 +89,7 @@ func (m Molecule) OverlayArgs(dest string, writable bool) (string, error) {
 
 	// Note that in overlayfs, the first thing is the top most layer in the
 	// overlay.
-	mntOpts := "lowerdir=" + strings.Join(dirs, ":")
+	mntOpts := "index=off,lowerdir=" + strings.Join(dirs, ":")
 	if writable {
 		// In order to make it so that we can Unmount() without saving
 		// any state, we construct special names for the workdir and
