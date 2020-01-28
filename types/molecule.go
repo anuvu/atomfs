@@ -168,7 +168,7 @@ func Umount(config Config, dest string) error {
 
 	// now, "refcount" the remaining atoms and see if any of ours are
 	// unused
-	usedAtoms := map[string]bool{}
+	usedAtoms := map[string]int{}
 
 	mounts, err = mount.ParseMounts("/proc/self/mountinfo")
 	if err != nil {
@@ -182,17 +182,23 @@ func Umount(config Config, dest string) error {
 
 		dirs := mount.GetOverlayDirs(m)
 		for _, d := range dirs {
-			usedAtoms[d] = true
+			usedAtoms[d]++
 		}
 	}
 
 	// If any of the atoms underlying the target mountpoint are now unused,
 	// let's unmount them too.
 	for _, a := range underlyingAtoms {
-		_, used := usedAtoms[a]
-		if used {
+		count, used := usedAtoms[a]
+		if used && count > 1 {
 			continue
 		}
+		/* TODO: some kind of logging
+		if !used {
+			log.Warnf("unused atom %s was part of this molecule?")
+			continue
+		}
+		*/
 
 		// the workaround dir isn't really a mountpoint, so don't unmount it
 		if path.Base(a) == "workaround" {
