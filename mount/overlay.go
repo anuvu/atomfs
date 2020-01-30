@@ -30,7 +30,7 @@ func (ms Mounts) IsMountpoint(p string) bool {
 func ParseMounts(mountinfo string) (Mounts, error) {
 	f, err := os.Open(mountinfo)
 	if err != nil {
-		return nil, errors.Wrapf(err, "couldn't open /proc/self/mountinfo")
+		return nil, errors.Wrapf(err, "couldn't open %s", mountinfo)
 	}
 	defer f.Close()
 
