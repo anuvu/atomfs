@@ -150,6 +150,7 @@ func Umount(config Config, dest string) error {
 		}
 
 		underlyingAtoms = mount.GetOverlayDirs(m)
+		break
 	}
 
 	if len(underlyingAtoms) == 0 {
