@@ -102,6 +102,8 @@ func (m Molecule) OverlayArgs(dest string, writable bool) (string, error) {
 		upperDir := m.config.OverlayDirsPath(sha256string(dest), "upperdir")
 		workDir := m.config.OverlayDirsPath(sha256string(dest), "workdir")
 
+		os.RemoveAll(workDir)
+		os.RemoveAll(upperdir)
 		if err := os.MkdirAll(upperDir, 0755); err != nil {
 			return "", err
 		}
