@@ -4,7 +4,7 @@ import (
 	"io"
 
 	"github.com/anuvu/atomfs/types"
-	"github.com/openSUSE/umoci/oci/casext"
+	"github.com/opencontainers/umoci/oci/casext"
 	ispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
 )

@@ -3,7 +3,7 @@ package atomfs
 import (
 	"context"
 
-	"github.com/openSUSE/umoci"
+	"github.com/opencontainers/umoci"
 )
 
 func (atomfs *Instance) SlurpOCI(location string) error {

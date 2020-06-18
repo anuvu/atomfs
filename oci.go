@@ -5,7 +5,7 @@ import (
 	"path"
 
 	"github.com/anuvu/atomfs/types"
-	"github.com/openSUSE/umoci"
+	"github.com/opencontainers/umoci"
 	stackeroci "github.com/anuvu/stacker/oci"
 )
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/anuvu/atomfs/types"
 	stackeroci "github.com/anuvu/stacker/oci"
-	"github.com/openSUSE/umoci/oci/casext"
+	"github.com/opencontainers/umoci/oci/casext"
 )
 
 func (atomfs *Instance) CreateMolecule(name string, atoms []types.Atom) (types.Molecule, error) {
