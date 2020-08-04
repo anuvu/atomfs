@@ -27,7 +27,7 @@ func mountSquashfs(source string, dest string) error {
 	}
 	defer dev.Detach()
 
-	err = unix.Mount(dev.Path(), dest, "squashfs", 0, "")
+	err = unix.Mount(dev.Path(), dest, "squashfs", unix.MS_RDONLY, "")
 	return errors.Wrapf(err, "couldn't mount %s to %s", source, dest)
 }
 
