@@ -14,4 +14,6 @@ require (
 	golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1
 )
 
+replace github.com/freddierice/go-losetup => github.com/tych0/go-losetup v0.0.0-20200513233514-d9566aa43a61
+
 go 1.13
