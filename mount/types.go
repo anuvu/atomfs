@@ -21,7 +21,7 @@ func mountTar(source string, dest string) error {
 }
 
 func mountSquashfs(source string, dest string) error {
-	dev, err := losetup.Attach(source, 0, false)
+	dev, err := losetup.Attach(source, 0, true)
 	if err != nil {
 		return err
 	}
