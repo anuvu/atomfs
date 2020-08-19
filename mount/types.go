@@ -23,7 +23,7 @@ func mountTar(source string, dest string) error {
 func mountSquashfs(source string, dest string) error {
 	dev, err := losetup.Attach(source, 0, true)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed to losetup %s", source)
 	}
 	defer dev.Detach()
 
