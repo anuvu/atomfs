@@ -1,7 +1,6 @@
 package atomfs
 
 import (
-	"context"
 	"path"
 
 	"github.com/anuvu/atomfs/types"
@@ -46,12 +45,6 @@ func BuildMoleculeFromOCI(opts MountOCIOpts) (types.Molecule, error) {
 
 	atoms := []types.Atom{}
 	for _, l := range man.Layers {
-		layer, err := oci.FromDescriptor(context.Background(), l)
-		if err != nil {
-			return types.Molecule{}, err
-		}
-		defer layer.Close()
-
 		atom := types.Atom{Hash: l.Digest.Encoded(), Type: types.SquashfsAtom}
 		atoms = append(atoms, atom)
 	}
